@@ -9,7 +9,7 @@ NEA FOR A LEVEL COMPUTER SCIENCE YEAR 1 AND 2
 
 19/05/2026 - Inplemented a light theme for the website
 
-14/05/2026 - Inplemeted a dark theme for the website
+24/05/2026 - Inplemeted a dark theme for the website
 
 25/05/2026 - Added a button to switch to dark an light mode
 

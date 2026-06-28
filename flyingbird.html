@@ -26,8 +26,8 @@ function startGame() {
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
-        this.canvas.width = 480;
-        this.canvas.height = 270;
+        this.canvas.width = 960;
+        this.canvas.height = 540;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.frameNo = 0;
@@ -70,7 +70,11 @@ function component(width, height, color, x, y, type) {
         var rockbottom = myGameArea.canvas.height - this.height;
         if (this.y > rockbottom) {
             this.y = rockbottom;
-            this.gravitySpeed = 0;
+            this.gravitySpeed = -this.gravitySpeed * 0.8;
+        }
+        if (this.y < 0) {
+            this.y = 0;
+            this.gravitySpeed = -this.gravitySpeed * 0.8;
         }
     }
     this.crashWith = function(otherobj) {
@@ -104,14 +108,14 @@ function updateGameArea() {
         minHeight = 20;
         maxHeight = 200;
         height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
-        minGap = 50;
-        maxGap = 200;
+        minGap = 100;
+        maxGap = 150;
         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-        myObstacles.push(new component(10, height, "green", x, 0));
-        myObstacles.push(new component(10, x - height - gap, "green", x, height + gap));
+        myObstacles.push(new component(20, height, "green", x, 0));
+        myObstacles.push(new component(20, x - height - gap, "green", x, height + gap));
     }
     for (i = 0; i < myObstacles.length; i += 1) {
-        myObstacles[i].x += -1;
+        myObstacles[i].x += -1.5;
         myObstacles[i].update();
     }
     myScore.text="SCORE: " + myGameArea.frameNo;
@@ -125,27 +129,20 @@ function everyinterval(n) {
     return false;
 }
 
-function accelerate(n) {
-    myGamePiece.gravity = n;
+function jump() {
+    myGamePiece.gravitySpeed = -3;
 }
 
 window.addEventListener('keydown', function(event) {
     if (event.key.toLowerCase() === 'w') {
-        accelerate(-0.2);
-        event.preventDefault();
-    }
-});
-
-window.addEventListener('keyup', function(event) {
-    if (event.key.toLowerCase() === 'w') {
-        accelerate(0.05);
+        jump();
         event.preventDefault();
     }
 });
 </script>
 <br>
-<button disabled>W TO FLY</button>
-<p>Use the W key to fly in the air</p>
-<p>How long can you stay alive in the sky?</p>
+<button disabled>W TO BOUNCE</button>
+<p>Press W to bounce the bird upward and let it rebound in the air</p>
+<p>How long can you stay alive while bouncing through the sky?</p>
 </body>
 </html>

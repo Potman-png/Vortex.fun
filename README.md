@@ -17,6 +17,7 @@ NEA FOR A LEVEL COMPUTER SCIENCE YEAR 1 AND 2
 
 19/06/2026 - Started to make code for the first application, flyingbird.html
 
-23/06/2026 - Finished coding the basic mechanics of flyingbird.html and added a button which connects toa link to the game.
+23/06/2026 - Finished coding the basic mechanics of flyingbird.html and added a button which connects a link to the game.
 
-24/06/2026 -  Fixed code and changed accelerate keybind from left mouse to w.
+24/06/2026 -  Fixed code and changed accelerate keybind from left mouse to w. Changed text on flyingbird.html
+

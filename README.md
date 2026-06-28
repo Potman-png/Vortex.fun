@@ -21,5 +21,5 @@ NEA FOR A LEVEL COMPUTER SCIENCE YEAR 1 AND 2
 
 24/06/2026 -  Fixed code and changed accelerate keybind from left mouse to w. Changed text on flyingbird.html
 
-28/06/2026 - Implemented a bounce mechanic instead of sustained flight.
+28/06/2026 - Implemented a bounce mechanic instead of sustained flight. And adjusted
 

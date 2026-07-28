@@ -29,3 +29,9 @@ NEA FOR A LEVEL COMPUTER SCIENCE YEAR 1 AND 2
 
 05/07/2026 - Finished polising and coding flyingbird.html. Added a highscore that saved on each instance aswell as a background.
 
+14/07/26 - Went to find code and details fro Minesweeper
+
+22/07/26 - Started coding//implementing design for minesweeper.html
+
+28/07/26 - Finished polising and debugging minesweeper.html
+

@@ -1,148 +1,433 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<style>
-canvas {
-    border:1px solid #d3d3d3;
-    background-color: #f1f1f1;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flying Bird Game</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --panel: rgba(7, 17, 31, 0.9);
+      --text: #f4f7fb;
+      --muted: #9fb0c9;
+      --accent: #ffbf47;
+      --accent-2: #4fd1ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #07111f, #112d4e 45%, #1b4b77);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .game-shell {
+      width: min(100%, 1040px);
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 24px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+      padding: 20px;
+      backdrop-filter: blur(12px);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .title-group h1 {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.3vw, 1.7rem);
+    }
+
+    .title-group p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .scoreboard {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .game-area {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.12);
+      background: #89d0ff;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #7fd0ff 0%, #89d0ff 60%, #cfeffd 100%);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+      padding: 24px;
+      background: rgba(2, 12, 28, 0.7);
+      color: white;
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .overlay h2 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+    }
+
+    .overlay p {
+      margin: 0;
+      max-width: 460px;
+      color: #dfe9f5;
+      line-height: 1.5;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary-btn {
+      background: var(--accent);
+      color: #0b1320;
+    }
+
+    .secondary-btn {
+      background: rgba(255,255,255,0.14);
+      color: white;
+    }
+
+    .help-text {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .help-text strong {
+      color: var(--accent);
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 12px; }
+      .game-shell { padding: 14px; }
+      .top-bar { flex-direction: column; align-items: flex-start; }
+      .scoreboard { width: 100%; }
+      .pill { flex: 1 1 auto; text-align: center; }
+    }
+  </style>
 </head>
-<body onload="startGame()">
-<script>
+<body>
+  <div class="game-shell">
+    <div class="top-bar">
+      <div class="title-group">
+        <h1>Flying Bird</h1>
+        <p>Stay airborne as long as you can.</p>
+      </div>
+      <div class="scoreboard">
+        <div class="pill">Score: <span id="scoreValue">0</span></div>
+        <div class="pill">Best: <span id="highScoreValue">0</span></div>
+      </div>
+    </div>
 
-var myGamePiece;
-var myObstacles = [];
-var myScore;
+    <div class="game-area">
+      <canvas id="gameCanvas" width="960" height="540"></canvas>
+      <div id="overlay" class="overlay">
+        <h2 id="overlayTitle">Ready to Fly?</h2>
+        <p id="overlayText">Tap the screen, press W, or press Space to flap upward and dodge the pipes.</p>
+        <div class="controls-row">
+          <button id="startBtn" class="primary-btn" type="button">Start Game</button>
+          <button id="restartBtn" class="secondary-btn" type="button">Restart</button>
+        </div>
+      </div>
+    </div>
 
-function startGame() {
-    myGamePiece = new component(30, 30, "red", 10, 120);
-    myGamePiece.gravity = 0.05;
-    myScore = new component("30px", "Consolas", "black", 280, 40, "text");
-    myGameArea.start();
-}
+    <p class="help-text">Tip: <strong>W</strong> or <strong>Space</strong> makes the bird flap.</p>
+  </div>
 
-var myGameArea = {
-    canvas : document.createElement("canvas"),
-    start : function() {
-        this.canvas.width = 960;
-        this.canvas.height = 540;
-        this.context = this.canvas.getContext("2d");
-        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.frameNo = 0;
-        this.interval = setInterval(updateGameArea, 20);
-        },
-    clear : function() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlayText = document.getElementById('overlayText');
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const scoreValue = document.getElementById('scoreValue');
+    const highScoreValue = document.getElementById('highScoreValue');
+
+    const WIDTH = 960;
+    const HEIGHT = 540;
+    const GRAVITY = 0.32;
+    const FLAP_FORCE = -5.8;
+    const PIPE_SPEED = 2.6;
+
+    const state = {
+      phase: 'ready',
+      bird: null,
+      obstacles: [],
+      score: 0,
+      highScore: Number(localStorage.getItem('flyingBirdHighScore') || 0),
+      spawnTimer: 0,
+      lastTime: 0
+    };
+
+    function updateScore() {
+      scoreValue.textContent = state.score;
+      highScoreValue.textContent = state.highScore;
     }
-}
 
-function component(width, height, color, x, y, type) {
-    this.type = type;
-    this.score = 0;
-    this.width = width;
-    this.height = height;
-    this.speedX = 0;
-    this.speedY = 0;    
-    this.x = x;
-    this.y = y;
-    this.gravity = 0;
-    this.gravitySpeed = 0;
-    this.update = function() {
-        ctx = myGameArea.context;
-        if (this.type == "text") {
-            ctx.font = this.width + " " + this.height;
-            ctx.fillStyle = color;
-            ctx.fillText(this.text, this.x, this.y);
-        } else {
-            ctx.fillStyle = color;
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+    function resetGame() {
+      state.phase = 'ready';
+      state.bird = {
+        x: 140,
+        y: HEIGHT / 2,
+        width: 36,
+        height: 28,
+        velocityY: 0
+      };
+      state.obstacles = [];
+      state.score = 0;
+      state.spawnTimer = 0;
+      state.lastTime = 0;
+      updateScore();
+      draw();
+      overlay.classList.remove('hidden');
+      overlayTitle.textContent = 'Ready to Go?';
+      overlayText.textContent = 'Tap the screen, press W, or press Space to flap upward and dodge the pipes.';
+    }
+
+    function startGame() {
+      state.phase = 'playing';
+      state.bird = {
+        x: 140,
+        y: HEIGHT / 2,
+        width: 36,
+        height: 28,
+        velocityY: 0
+      };
+      state.obstacles = [];
+      state.score = 0;
+      state.spawnTimer = 0;
+      state.lastTime = 0;
+      updateScore();
+      overlay.classList.add('hidden');
+      requestAnimationFrame(loop);
+    }
+
+    function endGame() {
+      state.phase = 'over';
+      if (state.score > state.highScore) {
+        state.highScore = state.score;
+        localStorage.setItem('flyingBirdHighScore', String(state.highScore));
+      }
+      updateScore();
+      overlay.classList.remove('hidden');
+      overlayTitle.textContent = 'Game Over';
+      overlayText.textContent = `You have achieved a score of ${state.score}. Press the start to try again.`;
+    }
+
+    function jump() {
+      if (state.phase === 'ready') {
+        startGame();
+        return;
+      }
+
+      if (state.phase === 'playing') {
+        state.bird.velocityY = FLAP_FORCE;
+      }
+    }
+
+    function spawnObstacle() {
+      const minHeight = 90;
+      const maxHeight = 220;
+      const gap = 150;
+      const topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+      const bottomHeight = HEIGHT - topHeight - gap;
+
+      state.obstacles.push({ x: WIDTH, width: 70, topHeight, bottomHeight, passed: false });
+    }
+
+    function update(delta) {
+      state.spawnTimer += delta;
+      if (state.spawnTimer > 90) {
+        spawnObstacle();
+        state.spawnTimer = 0;
+      }
+
+      state.bird.velocityY += GRAVITY * delta;
+      state.bird.y += state.bird.velocityY * delta;
+
+      if (state.bird.y + state.bird.height >= HEIGHT) {
+        state.bird.y = HEIGHT - state.bird.height;
+        state.bird.velocityY = 0;
+        endGame();
+        return;
+      }
+
+      if (state.bird.y <= 0) {
+        state.bird.y = 0;
+        state.bird.velocityY = 0;
+      }
+
+      for (let i = state.obstacles.length - 1; i >= 0; i -= 1) {
+        const pipe = state.obstacles[i];
+        pipe.x -= PIPE_SPEED * delta;
+
+        if (!pipe.passed && pipe.x + pipe.width < state.bird.x) {
+          pipe.passed = true;
+          state.score += 1;
+          updateScore();
         }
-    }
-    this.newPos = function() {
-        this.gravitySpeed += this.gravity;
-        this.x += this.speedX;
-        this.y += this.speedY + this.gravitySpeed;
-        this.hitBottom();
-    }
-    this.hitBottom = function() {
-        var rockbottom = myGameArea.canvas.height - this.height;
-        if (this.y > rockbottom) {
-            this.y = rockbottom;
-            this.gravitySpeed = -this.gravitySpeed * 0.8;
+
+        const birdLeft = state.bird.x;
+        const birdRight = state.bird.x + state.bird.width;
+        const birdTop = state.bird.y;
+        const birdBottom = state.bird.y + state.bird.height;
+
+        const pipeLeft = pipe.x;
+        const pipeRight = pipe.x + pipe.width;
+        const topBottom = pipe.topHeight;
+        const bottomTop = HEIGHT - pipe.bottomHeight;
+
+        const hitsTop = birdRight > pipeLeft && birdLeft < pipeRight && birdTop < topBottom;
+        const hitsBottom = birdRight > pipeLeft && birdLeft < pipeRight && birdBottom > bottomTop;
+
+        if (hitsTop || hitsBottom) {
+          endGame();
+          return;
         }
-        if (this.y < 0) {
-            this.y = 0;
-            this.gravitySpeed = -this.gravitySpeed * 0.8;
+
+        if (pipe.x + pipe.width < -20) {
+          state.obstacles.splice(i, 1);
         }
+      }
     }
-    this.crashWith = function(otherobj) {
-        var myleft = this.x;
-        var myright = this.x + (this.width);
-        var mytop = this.y;
-        var mybottom = this.y + (this.height);
-        var otherleft = otherobj.x;
-        var otherright = otherobj.x + (otherobj.width);
-        var othertop = otherobj.y;
-        var otherbottom = otherobj.y + (otherobj.height);
-        var crash = true;
-        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
-            crash = false;
-        }
-        return crash;
-    }
-}
 
-function updateGameArea() {
-    var x, height, gap, minHeight, maxHeight, minGap, maxGap;
-    for (i = 0; i < myObstacles.length; i += 1) {
-        if (myGamePiece.crashWith(myObstacles[i])) {
-            return;
-        } 
-    }
-    myGameArea.clear();
-    myGameArea.frameNo += 1;
-    if (myGameArea.frameNo == 1 || everyinterval(150)) {
-        x = myGameArea.canvas.width;
-        minHeight = 20;
-        maxHeight = 200;
-        height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
-        minGap = 100;
-        maxGap = 150;
-        gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-        myObstacles.push(new component(20, height, "green", x, 0));
-        myObstacles.push(new component(20, x - height - gap, "green", x, height + gap));
-    }
-    for (i = 0; i < myObstacles.length; i += 1) {
-        myObstacles[i].x += -1.5;
-        myObstacles[i].update();
-    }
-    myScore.text="SCORE: " + myGameArea.frameNo;
-    myScore.update();
-    myGamePiece.newPos();
-    myGamePiece.update();
-}
+    function drawBackground() {
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+      ctx.fillStyle = '#89d0ff';
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-function everyinterval(n) {
-    if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
-    return false;
-}
+      ctx.fillStyle = '#d4f0ff';
+      ctx.fillRect(0, 400, WIDTH, HEIGHT - 400);
+    }
 
-function jump() {
-    myGamePiece.gravitySpeed = -3;
-}
+    function drawBird() {
+      const { x, y, width, height } = state.bird;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = '#ff6b4a';
+      ctx.beginPath();
+      ctx.moveTo(0, height / 2);
+      ctx.quadraticCurveTo(width * 0.5, 0, width, height / 2);
+      ctx.quadraticCurveTo(width * 0.55, height, 0, height / 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(width * 0.75, height * 0.35, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
 
-window.addEventListener('keydown', function(event) {
-    if (event.key.toLowerCase() === 'w') {
-        jump();
+    function drawPipes() {
+      state.obstacles.forEach((pipe) => {
+        ctx.fillStyle = '#4caf50';
+        ctx.fillRect(pipe.x, 0, pipe.width, pipe.topHeight);
+        ctx.fillRect(pipe.x, HEIGHT - pipe.bottomHeight, pipe.width, pipe.bottomHeight);
+      });
+    }
+
+    function draw() {
+      drawBackground();
+      drawPipes();
+      drawBird();
+    }
+
+    function loop(timestamp) {
+      if (state.phase !== 'playing') return;
+      if (!state.lastTime) state.lastTime = timestamp;
+      const delta = Math.min((timestamp - state.lastTime) / 16.67, 1.6);
+      state.lastTime = timestamp;
+      update(delta);
+      draw();
+      if (state.phase === 'playing') {
+        requestAnimationFrame(loop);
+      }
+    }
+
+    startBtn.addEventListener('click', startGame);
+    restartBtn.addEventListener('click', startGame);
+
+    canvas.addEventListener('pointerdown', () => {
+      jump();
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key.toLowerCase() === 'w' || event.code === 'Space') {
         event.preventDefault();
-    }
-});
-</script>
-<br>
-<button disabled>W TO BOUNCE</button>
-<p>Press W to bounce the bird upward and let it rebound in the air</p>
-<p>How long can you stay alive while bouncing through the sky?</p>
+        jump();
+      }
+    });
+
+    resetGame();
+  </script>
 </body>
 </html>

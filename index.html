@@ -10,8 +10,8 @@
     :root {
       color-scheme: dark light;
       --bg: #000;
-      --text: #b4b4b4;
-      --subtext: #555;
+      --text: #f5f7fb;
+      --subtext: #b0b9c8;
       --surface: rgba(0, 0, 0, 0.45);
       --surface-border: rgba(255, 255, 255, 0.25);
       --accent-1: rgba(251, 255, 0, 0.8);
@@ -21,9 +21,7 @@
       --transition: 0.33s ease;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -34,8 +32,7 @@
       align-items: center;
       position: relative;
       overflow-x: hidden;
-      overflow-y: auto;
-      padding: 64px 0 128px;
+      padding: 64px 24px 128px;
       background: var(--bg);
       color: var(--text);
       font-family: "Segoe UI", Arial, sans-serif;
@@ -78,7 +75,6 @@
       top: 15%;
       right: 10%;
       transform: rotate(25deg);
-      filter: blur(0.5px);
       pointer-events: none;
       transition: background var(--transition), transform var(--transition);
     }
@@ -110,21 +106,50 @@
       transition: background var(--transition), color var(--transition), border-color var(--transition);
     }
 
-    .top-text,
-    .sub-text,
-    .bottom-text,
-    .link-button {
+    main {
       position: relative;
       z-index: 1;
+      width: min(100%, 760px);
       text-align: center;
-      padding: 0 24px;
-      margin: 0;
     }
 
     .top-text {
       font-size: clamp(32px, 6vw, 48px);
       font-weight: 700;
       letter-spacing: 1px;
+      margin: 0;
+    }
+
+    .sub-text {
+      margin-top: 8px;
+      font-size: 18px;
+      color: var(--subtext);
+    }
+
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .card {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--subtext);
+      line-height: 1.5;
     }
 
     .link-button {
@@ -145,15 +170,6 @@
       transform: translateY(-1px);
     }
 
-    .sub-text {
-      margin-top: 8px;
-      font-size: 18px;
-      color: var(--subtext);
-    }
-.sub-text a {
-      color: var(--accent-1);
-      text-decoration: none;
-    }
     body.light {
       --bg: #f5f5f5;
       --text: #111;
@@ -169,6 +185,10 @@
     body.light .theme-toggle {
       color: #111;
     }
+
+    @media (max-width: 760px) {
+      .card-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -181,12 +201,29 @@
 
   <main>
     <h1 class="top-text">vortex.fun</h1>
-    <p class="sub-text">Games And Statistics Website (NEA)</p>
-    <p class="sub-text">Add Description Here</p>
-    <a class="link-button" href="flyingbird.html">Play Flying Bird</a>
-  </main>
+    <p class="sub-text">Games & statistics website for NEA.</p>
+    <p class="sub-text">A collection of web experiences.</p>
 
-  <footer class="bottom-text">Have fun!</footer>
+    <a class="link-button" href="flyingbird.html">Play Flying Bird</a>
+
+    <a class="link-button" href="minesweeper.html">Play Minesweeper</a>
+    
+    <a class="link-button" href="statistics.html">View Statistics</a>
+
+    <a class="link-button" href="snake.html">Play Snake</a>
+
+
+    <div class="card-row">
+      <section class="card" aria-label="Featured game">
+        <h2>Featured Game</h2>
+        <p>Flying Bird is an arcade-style challenge where timing and reflexes matter.</p>
+      </section>
+      <section class="card" aria-label="Project goals">
+        <h2>NEA Goals</h2>
+        <p>This project aims to showcase web development skills.</p>
+      </section>
+    </div>
+  </main>
 
   <script>
     const body = document.body;

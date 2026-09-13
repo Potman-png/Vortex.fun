@@ -1,0 +1,83 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #0a0a0a;
+    margin: 0;
+    padding: 40px 20px;
+    color: #222;
+}
+
+.game-shell {
+    max-width: 520px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.game-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.reset-btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #2f80ed;
+    color: rgb(0, 0, 0);
+}
+
+.status {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #0f0f0f;
+}
+
+#gameBoard {
+    display: grid;
+    gap: 4px;
+    justify-content: start;
+    padding: 8px;
+    background: #e6e6e6;
+    border-radius: 8px;
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #313131;
+    background: #8a8a8a;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.cell.revealed {
+    background: #f7f7f7;
+    cursor: default;
+}
+
+.cell.mine {
+    background: #790000;
+    color: white;
+}
+
+.cell.flagged {
+    background: #18ce00;
+}
+
+/* Design space: add colors, animations, bigger board, custom themes, etc. */

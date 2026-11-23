@@ -98,7 +98,7 @@ function renderBoard() {
             });
 
             updateCellDisplay(cell, r, c);
-            boardElement.appendChild(cell);
+            boardElement.appendChild(cell); 
         }
     }
 }

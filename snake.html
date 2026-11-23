@@ -9,16 +9,19 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
+            gap: 12px;
             min-height: 100vh;
             margin: 0;
-            background-color: #000;
+            background: linear-gradient(135deg, #0b2e13, #168b35 55%, #8bd450);
             color: #fff;
             font-family: Arial, sans-serif;
         }
 
         canvas {
-            border: 2px solid #15ff00;
-            background-color: #111;
+            border: 2px solid #a8f078;
+            background-color: rgba(5, 28, 12, 0.8);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
         }
 
         .info {
@@ -26,35 +29,53 @@
             top: 16px;
             left: 16px;
             font-size: 14px;
-            color: #ddd;
+            color: #f0ffe8;
+        }
+
+        .status {
+            min-height: 20px;
+            margin: 0;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 <div class="info">Use arrow keys to move. Press Enter to restart.</div>
+<p class="status" id="status" aria-live="polite"></p>
 <canvas width="400" height="400" id="game" aria-label="Snake game"></canvas>
 <script>
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
+const statusElement = document.getElementById('status');
 
 const tileCount = 20;
 const tileSize = canvas.width / tileCount;
 
-let snake = [
-    { x: 10, y: 10 },
-    { x: 9, y: 10 },
-    { x: 8, y: 10 }
-];
-
-let direction = { x: 1, y: 0 };
-let nextDirection = { x: 1, y: 0 };
+let snake;
+let direction;
+let nextDirection;
+let gameOver = false;
 const speed = 120;
 
+function resetGame() {
+    snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+    ];
+    direction = { x: 1, y: 0 };
+    nextDirection = { x: 1, y: 0 };
+    gameOver = false;
+    statusElement.textContent = '';
+    drawBoard();
+    drawSnake();
+}
+
 function drawBoard() {
-    context.fillStyle = '#111';
+    context.fillStyle = '#092410';
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    context.strokeStyle = '#1d1d1d';
+    context.strokeStyle = 'rgba(177, 235, 159, 0.12)';
     context.lineWidth = 1;
 
     for (let i = 0; i < tileCount; i++) {
@@ -86,23 +107,36 @@ function moveSnake() {
     direction = nextDirection;
 
     const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+    const hitsWall =
+        head.x < 0 || head.x >= tileCount ||
+        head.y < 0 || head.y >= tileCount;
+    const bodyToCheck = snake.slice(0, -1);
+    const hitsSelf = bodyToCheck.some(segment => segment.x === head.x && segment.y === head.y);
+
+    if (hitsWall || hitsSelf) {
+        gameOver = true;
+        statusElement.textContent = 'Game over! Press Enter to restart.';
+        return;
+    }
 
     snake.unshift(head);
     snake.pop();
-
-    if (snake[0].x < 0) snake[0].x = tileCount - 1;
-    if (snake[0].x >= tileCount) snake[0].x = 0;
-    if (snake[0].y < 0) snake[0].y = tileCount - 1;
-    if (snake[0].y >= tileCount) snake[0].y = 0;
 }
 
 function updateGame() {
+    if (gameOver) return;
+
     moveSnake();
     drawBoard();
     drawSnake();
 }
 
 function handleKeydown(event) {
+    if (event.key === 'Enter') {
+        resetGame();
+        return;
+    }
+
     const keyMap = {
         ArrowUp: { x: 0, y: -1 },
         ArrowDown: { x: 0, y: 1 },
@@ -112,6 +146,8 @@ function handleKeydown(event) {
 
     const next = keyMap[event.key];
     if (!next) return;
+    event.preventDefault();
+    if (gameOver) return;
 
     const isReverseMove =
         next.x === -direction.x && next.y === -direction.y;
@@ -123,8 +159,7 @@ function handleKeydown(event) {
 
 document.addEventListener('keydown', handleKeydown);
 
-drawBoard();
-drawSnake();
+resetGame();
 setInterval(updateGame, speed);
 </script>
 </body>
